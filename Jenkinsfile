@@ -4,8 +4,8 @@ node {
     def username = "testuserwsk8s"
     def password = "cacamaca32"
     def imageTag = "${username}/${appName}:${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
-    def docker-user = ""
-    def docker-passowrd = ""
+    def docker-user = ''
+    def docker-passowrd = ''
     checkout scm
 
     stage('Preparation') {
