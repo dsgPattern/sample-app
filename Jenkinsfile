@@ -22,12 +22,21 @@ node {
     }
 
     stage('Push image to registry') {
-        withCredentials([usernamePassword(credentialsId: 'docker-hub-cred', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]{
-            docker-user = env.USERNAME
-            docker-passowrd = env.PASSWORD
+        withCredentials([usernamePassword(credentialsId: 'docker-hub-cred', passwordVariable: 'PASS', usernameVariable: 'USER')]{
+            imageTag = "${USER}/${appName}:${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+            stage('Build image') {
+                sh("docker build -t ${imageTag} .")
+            }
+            stage('Run Go tests') {
+                sh("docker run ${imageTag} go test")
+            }
+            stage('Push image to registry') {
+                sh("docker login -u ${USER} -p ${PASS}")
+                sh("docker push ${imageTag}")
+            }
+            
             sh("docker login -u ${docker-user} -p ${docker-password}")
-        })        
-        sh("docker push ${imageTag}")
+        })
     }
 
     stage("Deploy Application") {
