@@ -1,10 +1,11 @@
 node {
     def appName = 'gceme'
-    def feSvcName = "${appName}-frontend"
+    def feSvcName = "sample-app-frontend"
     def username = "testuserwsk8s"
     def password = "cacamaca32"
     def imageTag = "${username}/${appName}:${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
-
+    def docker-user = ""
+    def docker-passowrd = ""
     checkout scm
 
     stage('Preparation') {
@@ -21,7 +22,11 @@ node {
     }
 
     stage('Push image to registry') {
-        sh("docker login -u ${username} -p ${password}")
+        withCredentials([usernamePassword(credentialsId: 'docker-hub-cred', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]{
+            docker-user = env.USERNAME
+            docker-passowrd = env.PASSWORD
+            sh("docker login -u ${docker-user} -p ${docker-password}")
+        })        
         sh("docker push ${imageTag}")
     }
 
